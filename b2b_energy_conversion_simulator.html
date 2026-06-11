@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Energy Conversion & Pricing TEAM Strategy Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom range slider styling for professional look */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+        input[type=range]:disabled::-webkit-slider-thumb {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        input[type=range]:disabled::-webkit-slider-runnable-track {
+            background: #e2e8f0;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-80 bg-slate-200 text-slate-800 flex flex-col h-full overflow-y-auto shadow-lg border-r border-slate-300 z-10 shrink-0">
+        <div class="p-6 bg-slate-300 border-b border-slate-400">
+            <span class="block text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Team A</span>
+            <h2 class="text-xl font-bold tracking-tight text-slate-900">Strategy Simulator</h2>
+            <p class="text-xs text-slate-600 mt-1">B2B Energy Conversion & Pricing</p>
+        </div>
+
+        <div class="p-6 space-y-6 flex-1">
+            <!-- Product Line -->
+            <div class="space-y-2">
+                <label for="productLine" class="block text-sm font-medium text-slate-700">Select Product Line</label>
+                <select id="productLine" class="w-full bg-white border border-slate-300 text-slate-900 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="W">W (Baseline)</option>
+                    <option value="H1">H1</option>
+                    <option value="I1">I1</option>
+                    <option value="N1">N1</option>
+                    <option value="A1">A1</option>
+                    <option value="Q">Q</option>
+                </select>
+            </div>
+
+            <!-- Gross Margin Rate -->
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <label for="marginRate" class="block text-sm font-medium text-slate-700">Gross Margin Rate (%)</label>
+                    <span id="marginValue" class="text-sm font-bold text-blue-600">25.0%</span>
+                </div>
+                <input type="range" id="marginRate" min="0" max="100" step="0.5" value="25" class="w-full">
+            </div>
+
+            <!-- System Capacity -->
+            <div class="space-y-2">
+                <label for="capacity" class="block text-sm font-medium text-slate-700">System Capacity (Kw)</label>
+                <input type="number" id="capacity" step="5" value="50" class="w-full bg-white border border-slate-300 text-slate-900 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <hr class="border-slate-300">
+
+            <!-- Competitor A Data Unavailable -->
+            <div class="flex items-start">
+                <div class="flex items-center h-5">
+                    <input id="compAMissing" type="checkbox" class="w-4 h-4 rounded bg-white border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-200">
+                </div>
+                <div class="ml-3 text-sm">
+                    <label for="compAMissing" class="font-medium text-slate-700">Competitor A Data Missing</label>
+                    <p class="text-slate-500 text-xs mt-0.5">Forces price ratio calculation to 0.</p>
+                </div>
+            </div>
+
+            <!-- Price Ratio -->
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <label for="priceRatio" class="block text-sm font-medium text-slate-700" id="priceRatioLabel">Price Ratio vs Comp A</label>
+                    <span id="priceRatioValue" class="text-sm font-bold text-blue-600">1.00</span>
+                </div>
+                <input type="range" id="priceRatio" min="0.5" max="1.5" step="0.01" value="1.0" class="w-full">
+                <p class="text-xs text-slate-500" id="priceRatioTooltip">1.0 = price parity; >1.0 = we are more expensive.</p>
+            </div>
+
+            <hr class="border-slate-300">
+
+            <!-- Multi-Unit Project -->
+            <div class="flex items-center">
+                <input id="multiUnit" type="checkbox" class="w-4 h-4 rounded bg-white border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-200">
+                <label for="multiUnit" class="ml-3 text-sm font-medium text-slate-700">Multi-Unit Project</label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="flex-1 overflow-y-auto p-8 flex flex-col space-y-6">
+        
+        <!-- Header Section -->
+        <div class="flex justify-between items-end mb-2">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Project Quotation Analysis</h1>
+                <p class="text-slate-500 mt-1">Real-time logistic regression probability assessment</p>
+            </div>
+        </div>
+
+        <!-- KPI Cards Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Win Rate KPI Component -->
+            <div id="kpiCard" class="bg-white rounded-xl shadow-sm border-l-4 border-emerald-500 p-6 flex flex-col justify-center transition-colors duration-300">
+                <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">Conversion Probability</h3>
+                <div class="flex items-baseline space-x-2">
+                    <span id="winRateDisplay" class="text-6xl font-extrabold text-slate-900">--%</span>
+                </div>
+                <div class="mt-4 inline-flex items-center">
+                    <span id="kpiSubLabelBadge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        High Win Probability
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tactical Recommendations -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                <div class="flex items-center mb-4">
+                    <svg class="w-5 h-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-lg font-semibold text-slate-800">Tactical Recommendations</h3>
+                </div>
+                <p id="recommendationText" class="text-slate-600 text-base leading-relaxed flex-1 flex items-center bg-slate-50 rounded-lg p-4 border border-slate-100">
+                    --
+                </p>
+            </div>
+        </div>
+
+        <!-- Sensitivity Chart Component -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex-1 flex flex-col min-h-[400px]">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">Margin vs. Win Probability Sensitivity Curve</h3>
+            <div class="relative flex-1 w-full h-full min-h-0">
+                <canvas id="sensitivityChart"></canvas>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Model Constants
+        const INTERCEPT = 6.500973422224508;
+        const COEF_MARGIN = -5.814990433876518;
+        const COEF_CAPACITY = 0.013175398237738572;
+        const COEF_PRICE_RATIO = -5.128307426154258;
+        const COEF_MULTI_UNIT = 2.228582553142871;
+        const COEF_COMPA_MISSING = -2.7202530812848953;
+        const PRODUCT_COEFS = {
+            'W': 0.0,
+            'H1': 0.8010520632508024,
+            'I1': 0.4815098705914447,
+            'N1': -0.3559394553679088,
+            'A1': 1.9860199187836443,
+            'Q': -0.6413284143343297
+        };
+
+        // DOM Elements
+        const elProductLine = document.getElementById('productLine');
+        const elMarginRate = document.getElementById('marginRate');
+        const elMarginValue = document.getElementById('marginValue');
+        const elCapacity = document.getElementById('capacity');
+        const elCompAMissing = document.getElementById('compAMissing');
+        const elPriceRatio = document.getElementById('priceRatio');
+        const elPriceRatioValue = document.getElementById('priceRatioValue');
+        const elPriceRatioLabel = document.getElementById('priceRatioLabel');
+        const elPriceRatioTooltip = document.getElementById('priceRatioTooltip');
+        const elMultiUnit = document.getElementById('multiUnit');
+
+        const elWinRateDisplay = document.getElementById('winRateDisplay');
+        const elKpiCard = document.getElementById('kpiCard');
+        const elKpiSubLabelBadge = document.getElementById('kpiSubLabelBadge');
+        const elRecommendationText = document.getElementById('recommendationText');
+
+        let chartInstance = null;
+
+        // Core Calculation Logic
+        function calculateLogOdds(product, margin, capacity, priceRatio, multiUnit, compAMissing) {
+            const marginVal = margin / 100.0;
+            const priceRatioVal = compAMissing ? 0 : priceRatio;
+            const multiUnitVal = multiUnit ? 1 : 0;
+            const compAMissingVal = compAMissing ? 1 : 0;
+            const prodCoef = PRODUCT_COEFS[product];
+
+            return INTERCEPT 
+                + (COEF_MARGIN * marginVal) 
+                + (COEF_CAPACITY * capacity) 
+                + (COEF_PRICE_RATIO * priceRatioVal) 
+                + (COEF_MULTI_UNIT * multiUnitVal) 
+                + (COEF_COMPA_MISSING * compAMissingVal) 
+                + prodCoef;
+        }
+
+        function calculateWinProbability(logOdds) {
+            return (1 / (1 + Math.exp(-logOdds))) * 100;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('sensitivityChart').getContext('2d');
+            
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Sensitivity Curve',
+                            data: [], // Populated dynamically
+                            borderColor: '#94a3b8',
+                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            fill: true,
+                            order: 2
+                        },
+                        {
+                            type: 'scatter',
+                            label: 'Current Position',
+                            data: [], // Populated dynamically
+                            backgroundColor: '#10b981', // dynamic
+                            pointRadius: 8,
+                            pointHoverRadius: 10,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: { display: true, text: 'Gross Margin Rate (%)', color: '#64748b', font: {weight: 'bold'} },
+                            min: 0,
+                            max: 60,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: value => value + '%' }
+                        },
+                        y: {
+                            title: { display: true, text: 'Win Probability (%)', color: '#64748b', font: {weight: 'bold'} },
+                            min: 0,
+                            max: 100,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: value => value + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.type === 'scatter') {
+                                        return `Current Position: ${context.parsed.y.toFixed(1)}% Win Rate at ${context.parsed.x.toFixed(1)}% Margin`;
+                                    }
+                                    return `Margin: ${context.parsed.x.toFixed(1)}% -> Win Rate: ${context.parsed.y.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDashboard() {
+            // 1. Gather Inputs
+            const product = elProductLine.value;
+            const margin = parseFloat(elMarginRate.value);
+            const capacity = parseFloat(elCapacity.value) || 0;
+            const compAMissing = elCompAMissing.checked;
+            const multiUnit = elMultiUnit.checked;
+            
+            // Handle dependent input state
+            if (compAMissing) {
+                elPriceRatio.disabled = true;
+                elPriceRatio.parentElement.classList.add('opacity-50');
+                elPriceRatioLabel.classList.replace('text-slate-700', 'text-slate-400');
+            } else {
+                elPriceRatio.disabled = false;
+                elPriceRatio.parentElement.classList.remove('opacity-50');
+                elPriceRatioLabel.classList.replace('text-slate-400', 'text-slate-700');
+            }
+
+            const priceRatio = parseFloat(elPriceRatio.value);
+
+            // Update Input Value Displays
+            elMarginValue.innerText = margin.toFixed(1) + '%';
+            elPriceRatioValue.innerText = priceRatio.toFixed(2);
+
+            // 2. Calculate Current Probability
+            const currentLogOdds = calculateLogOdds(product, margin, capacity, priceRatio, multiUnit, compAMissing);
+            const currentProb = calculateWinProbability(currentLogOdds);
+
+            // 3. Update KPI Card & Recommendations
+            elWinRateDisplay.innerText = currentProb.toFixed(1) + '%';
+            
+            let colorTheme = '';
+            let kpiBorderColor = '';
+            let kpiSubtext = '';
+            let kpiBadgeBg = '';
+            let kpiBadgeText = '';
+            let recText = '';
+
+            if (currentProb < 25.0) {
+                kpiBorderColor = 'border-rose-500';
+                kpiBadgeBg = 'bg-rose-100';
+                kpiBadgeText = 'text-rose-800';
+                kpiSubtext = 'Low Win Probability';
+                colorTheme = '#f43f5e'; // Rose
+                recText = "🚨 Action Required: Pricing is in the critical danger zone. Consider reducing the target Gross Margin or adjusting the price to bring the competitor ratio closer to or below 1.0.";
+            } else if (currentProb >= 25.0 && currentProb < 50.0) {
+                kpiBorderColor = 'border-amber-500';
+                kpiBadgeBg = 'bg-amber-100';
+                kpiBadgeText = 'text-amber-800';
+                kpiSubtext = 'Moderate Win Probability';
+                colorTheme = '#f59e0b'; // Amber
+                recText = "⚠️ Minor Optimization: The quote is somewhat competitive but thin. Monitor competitor movements closely.";
+            } else {
+                kpiBorderColor = 'border-emerald-500';
+                kpiBadgeBg = 'bg-emerald-100';
+                kpiBadgeText = 'text-emerald-800';
+                kpiSubtext = 'High Win Probability';
+                colorTheme = '#10b981'; // Emerald
+                recText = "✅ Maintain Position: Pricing is highly optimized for conversion. Ensure operational capacity is ready for execution.";
+            }
+
+            // Apply Classes
+            elKpiCard.className = `bg-white rounded-xl shadow-sm border-l-8 ${kpiBorderColor} p-6 flex flex-col justify-center transition-colors duration-300`;
+            elKpiSubLabelBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-medium ${kpiBadgeBg} ${kpiBadgeText}`;
+            elKpiSubLabelBadge.innerText = kpiSubtext;
+            elRecommendationText.innerHTML = recText;
+
+            // 4. Generate Sensitivity Curve Data
+            const curveData = [];
+            for (let m = 0; m <= 60; m += 0.5) {
+                const logO = calculateLogOdds(product, m, capacity, priceRatio, multiUnit, compAMissing);
+                const p = calculateWinProbability(logO);
+                curveData.push({ x: m, y: p });
+            }
+
+            // 5. Update Chart
+            if (!chartInstance) initChart();
+            
+            chartInstance.data.datasets[0].data = curveData;
+            
+            // Limit marker to 60% max on X axis visually
+            const markerX = margin > 60 ? 60 : margin;
+            const markerY = margin > 60 ? calculateWinProbability(calculateLogOdds(product, 60, capacity, priceRatio, multiUnit, compAMissing)) : currentProb;
+
+            chartInstance.data.datasets[1].data = [{ x: markerX, y: markerY }];
+            chartInstance.data.datasets[1].backgroundColor = colorTheme;
+
+            // Set line segment colors dynamically based on probability threshold
+            chartInstance.update();
+        }
+
+        // Attach Event Listeners
+        [elProductLine, elMarginRate, elCapacity, elCompAMissing, elPriceRatio, elMultiUnit].forEach(el => {
+            el.addEventListener('input', updateDashboard);
+            el.addEventListener('change', updateDashboard);
+        });
+
+        // Initial render
+        initChart();
+        updateDashboard();
+
+    </script>
+</body>
+</html>
